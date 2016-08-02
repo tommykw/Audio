@@ -33,6 +33,26 @@ typedef struct opensl_stream {
   SLObjectItf recorderObject;
   SLRecordItf recorderRecord;
   SLAndroidSimpleBufferQueueItf recorderBufferQueue;
-}
+
+  int currentInputIndex;
+  int currentOutputIndex;
+
+  int currentOutputBuffer;
+  int currentInputBuffer;
+
+  short *outputBuffer[2];
+  short *inputBuffer[2];
+
+  int outBufSamples;
+  int inBufSamples;
+
+  void *inlock;
+  void *outlock;
+
+  double time;
+  int inchannels;
+  int outchannels;
+  int sr;
+} OPENSL_STREAM;
 
 #endif //AUDIO_OPENSL_IO_H
