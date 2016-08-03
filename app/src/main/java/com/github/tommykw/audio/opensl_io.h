@@ -55,4 +55,14 @@ typedef struct opensl_stream {
   int sr;
 } OPENSL_STREAM;
 
+  OPENSL_STREAM* android_OpenAudioDevice(int sr, int inchannels, int outchannels, int bufferframes);
+  void android_CloseAudioDevice(OPENSL_STREAM *p);
+  int android_AudioIn(OPENSL_STREAM *p, float *buffer, int size);
+  int android_AudioOut(OPENSL_STREAM *p, float *buffer, int size);
+  double android_GetTimestamp(OPENSL_STREAM *p);
+
+#ifdef __cplusplus
+);
+#endif
+
 #endif //AUDIO_OPENSL_IO_H
