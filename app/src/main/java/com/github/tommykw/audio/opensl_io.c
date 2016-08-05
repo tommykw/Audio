@@ -14,5 +14,9 @@ static void bgPlayerCallback(SLAndroidSimpleBufferQueueItf bg, void *context);
 static void bgRecorderCallback(SLAndroidSimpleBufferQueueItf bg, void *context);
 
 static SLresult openSLCreateEngine(OPENSL_STREAM *p) {
+  SLresult result;
+  result = slCreateEngine(&(p->engineObject), 0, NULL, 0, NULL, NULL);
+  if (result != SL_RESULT_SUCCESS) goto engine_end;
 
+  result = (*p->engineObject)->GetInterface(p->engineObject, SL_IID_ENGINE, &(p->engineEngine));
 }
