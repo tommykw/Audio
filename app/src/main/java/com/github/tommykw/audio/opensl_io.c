@@ -19,4 +19,14 @@ static SLresult openSLCreateEngine(OPENSL_STREAM *p) {
   if (result != SL_RESULT_SUCCESS) goto engine_end;
 
   result = (*p->engineObject)->GetInterface(p->engineObject, SL_IID_ENGINE, &(p->engineEngine));
+  if (result != SL_RESULT_SUCCESS) goto engine_end;
+
+  result = (*p->engineObject)->GetInterface(p->engineObject, SL_IID_ENGINE, &(p->engineEngine));
+  if (result != SL_RESULT_SUCCESS) goto engine_end;
+
+  engine_end;
+  return result;
+}
+
+static SLresult openSLPlayOpen(OPENSL_STREAM *p) {
 }
