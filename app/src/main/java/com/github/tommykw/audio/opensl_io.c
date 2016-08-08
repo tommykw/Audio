@@ -47,6 +47,18 @@ static SLresult openSLPlayOpen(OPENSL_STREAM *p) {
         case 16000:
             sr = SL_SAMPLINGRATE_16;
             break;
+        case 22050:
+            sr = SL_SAMPLINGRATE_22_05;
+            break;
+        case 24000:
+            sr = SL_SAMPLINGRATE_24;
+            break;
+        case 32000:
+            sr = SL_SAMPLINGRATE_32;
+            break;
+        case 44100:
+            sr = SL_SAMPLINGRATE_44_1;
+            break;
     }
   }
 }
