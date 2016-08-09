@@ -59,6 +59,36 @@ static SLresult openSLPlayOpen(OPENSL_STREAM *p) {
         case 44100:
             sr = SL_SAMPLINGRATE_44_1;
             break;
+        case 48000:
+            sr = SL_SAMPLINGRATE_48;
+            break;
+        default:
+            return -1;
+        }
+
+        const SLInterfaceID ids[] = {SL_IID_VOLUME};
+        const SLboolean req[] = {SL_BOOLEAN_FALSE};
+        result = (*p->engineEngine)->CreateOutputMix(p->engineEngine, &(p->outputMixObject), 1, ids, req);
+        if (result != SL_RESULT_SUCCESS) goto end_openaudio;
+
+        result = (*p->outputMixObject)->Realize(p->outputMixObject, SL_BOOLEAN_FALSE);
+
+        int speakers;
+        if (channels > 1) {
+            speakers = SL_SPEAKER_FRONT_LEFT | SL_SPEAKER_FRONT_RIGHT;
+        } else {
+            speakers = SL_SPEAKER_FRONT_CENTER;
+            SLDataFormat_PCM format_pcm = {
+                SL_DATAFORMAT_PCM, channels, sr,
+                SL_PCMSAMPLEFORMAT_FIXED_16, SLPCMSAMPLEFORMAT_FIXED_16,
+                speakers, SL_BYTEORDER_LITTLEENDIAN
+            };
+        }
+        SLDataSource audioSrc = {&loc_bufq, &format_pcm};
+
+        SLDataLocator_OutputMix loc_outmix = {SL_DATALOCATOR_OUTPUTMIX, p->outputMixObject};
+        SLDataSink audioSink = {&loc_outmix, NULL};
+        
     }
   }
 }
