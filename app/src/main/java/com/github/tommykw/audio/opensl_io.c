@@ -88,7 +88,31 @@ static SLresult openSLPlayOpen(OPENSL_STREAM *p) {
 
         SLDataLocator_OutputMix loc_outmix = {SL_DATALOCATOR_OUTPUTMIX, p->outputMixObject};
         SLDataSink audioSink = {&loc_outmix, NULL};
-        
+
+        const SLInterfaceID id[1] = {SL_IID_ANDROIDSIMPLEBUFFERQUEUE}
+        const SLboolean req[1] = {SL_BOOLEAN_TRUE}
+        result = (*p->enqineEngine)->CreateAudioRecorder(
+            p->engineEnqine, &(p->recorderObject), &audioSrc, &audioSnk, 1, id, req);
+
+        if (SL_RESULT_SUCCESS != result) goto end_recopen;
+
+        result = (*p->recorderObject)->Realize(p->recorderObject, SL_BOOLEAN_FALSE);
+        if (SL_RESULT_SUCCESS != result) goto end_recopen;
+
+        result = (*p->recorderObject)->GetInterface(p->recoderObject, SL_IID_RECORD, &(p->recorderRecord));
+        if (SL_RESULT_SUCCESS != result) goto end_recopen;
+
+        result = (*p->recorderObject)->GetInterface(p->recorderObject, SL_IID_ANDROIDSIMPLEBUFFERQUEUE, &(p->recorderBufferQueue));
+        if (SL_RESULT_SUCCESS != result) goto end_recopen;
+
+        result = (*p->recoderBufferQueue)->RegisterCallback(p->recorderBufferQueue, bgRecorderCallback, p);
+        if (SL_RESULT_SUCCESS != result) goto end_recopen;
+        result = (*p->recorderRecord)->SetRecordState(p->recorderRecord, SL_RECORDSTATE_RECORDING);
+
+
+
+
+
     }
   }
 }
