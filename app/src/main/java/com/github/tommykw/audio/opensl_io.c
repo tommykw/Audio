@@ -33,86 +33,99 @@ static SLresult openSLPlayOpen(OPENSL_STREAM *p) {
   SLunit32 sr = p->sr;
   SLunit32 channels = p->outchannels;
 
-  if (channels) {
-    SLDataLocator_AndroidSimpleBufferQueue loc_bufq =
-        {SL_DATALOCATOR_ANDROIDSIMPLEBUFFERQUEUE, 2}
+  if(channels){
 
-    switch (sr) {
-        case 8000:
-            sr = SL_SAMPLINGRATE_8;
-            break;
-        case 11025:
-            sr = SL_SAMPLINGRATE_11_025;
-            break;
-        case 16000:
-            sr = SL_SAMPLINGRATE_16;
-            break;
-        case 22050:
-            sr = SL_SAMPLINGRATE_22_05;
-            break;
-        case 24000:
-            sr = SL_SAMPLINGRATE_24;
-            break;
-        case 32000:
-            sr = SL_SAMPLINGRATE_32;
-            break;
-        case 44100:
-            sr = SL_SAMPLINGRATE_44_1;
-            break;
-        case 48000:
-            sr = SL_SAMPLINGRATE_48;
-            break;
-        default:
-            return -1;
-        }
+    switch(sr){
 
-        const SLInterfaceID ids[] = {SL_IID_VOLUME};
-        const SLboolean req[] = {SL_BOOLEAN_FALSE};
-        result = (*p->engineEngine)->CreateOutputMix(p->engineEngine, &(p->outputMixObject), 1, ids, req);
-        if (result != SL_RESULT_SUCCESS) goto end_openaudio;
-
-        result = (*p->outputMixObject)->Realize(p->outputMixObject, SL_BOOLEAN_FALSE);
-
-        int speakers;
-        if (channels > 1) {
-            speakers = SL_SPEAKER_FRONT_LEFT | SL_SPEAKER_FRONT_RIGHT;
-        } else {
-            speakers = SL_SPEAKER_FRONT_CENTER;
-            SLDataFormat_PCM format_pcm = {
-                SL_DATAFORMAT_PCM, channels, sr,
-                SL_PCMSAMPLEFORMAT_FIXED_16, SLPCMSAMPLEFORMAT_FIXED_16,
-                speakers, SL_BYTEORDER_LITTLEENDIAN
-            };
-        }
-        SLDataSource audioSrc = {&loc_bufq, &format_pcm};
-
-        SLDataLocator_OutputMix loc_outmix = {SL_DATALOCATOR_OUTPUTMIX, p->outputMixObject};
-        SLDataSink audioSink = {&loc_outmix, NULL};
-
-        const SLInterfaceID id[1] = {SL_IID_ANDROIDSIMPLEBUFFERQUEUE}
-        const SLboolean req[1] = {SL_BOOLEAN_TRUE}
-        result = (*p->enqineEngine)->CreateAudioRecorder(
-            p->engineEnqine, &(p->recorderObject), &audioSrc, &audioSnk, 1, id, req);
-
-        if (SL_RESULT_SUCCESS != result) goto end_recopen;
-
-        result = (*p->recorderObject)->Realize(p->recorderObject, SL_BOOLEAN_FALSE);
-        if (SL_RESULT_SUCCESS != result) goto end_recopen;
-
-        result = (*p->recorderObject)->GetInterface(p->recoderObject, SL_IID_RECORD, &(p->recorderRecord));
-        if (SL_RESULT_SUCCESS != result) goto end_recopen;
-
-        result = (*p->recorderObject)->GetInterface(p->recorderObject, SL_IID_ANDROIDSIMPLEBUFFERQUEUE, &(p->recorderBufferQueue));
-        if (SL_RESULT_SUCCESS != result) goto end_recopen;
-
-        result = (*p->recoderBufferQueue)->RegisterCallback(p->recorderBufferQueue, bgRecorderCallback, p);
-        if (SL_RESULT_SUCCESS != result) goto end_recopen;
-        result = (*p->recorderRecord)->SetRecordState(p->recorderRecord, SL_RECORDSTATE_RECORDING);
-
-
-
-
-
+    case 8000:
+      sr = SL_SAMPLINGRATE_8;
+      break;
+    case 11025:
+      sr = SL_SAMPLINGRATE_11_025;
+      break;
+    case 16000:
+      sr = SL_SAMPLINGRATE_16;
+      break;
+    case 22050:
+      sr = SL_SAMPLINGRATE_22_05;
+      break;
+    case 24000:
+      sr = SL_SAMPLINGRATE_24;
+      break;
+    case 32000:
+      sr = SL_SAMPLINGRATE_32;
+      break;
+    case 44100:
+      sr = SL_SAMPLINGRATE_44_1;
+      break;
+    case 48000:
+      sr = SL_SAMPLINGRATE_48;
+      break;
+    case 64000:
+      sr = SL_SAMPLINGRATE_64;
+      break;
+    case 88200:
+      sr = SL_SAMPLINGRATE_88_2;
+      break;
+    case 96000:
+      sr = SL_SAMPLINGRATE_96;
+      break;
+    case 192000:
+      sr = SL_SAMPLINGRATE_192;
+      break;
+    default:
+      return -1;
     }
+
+    // configure audio source
+    SLDataLocator_IODevice loc_dev = {SL_DATALOCATOR_IODEVICE, SL_IODEVICE_AUDIOINPUT,
+				      SL_DEFAULTDEVICEID_AUDIOINPUT, NULL};
+    SLDataSource audioSrc = {&loc_dev, NULL};
+
+    // configure audio sink
+    int speakers;
+    if(channels > 1)
+      speakers = SL_SPEAKER_FRONT_LEFT | SL_SPEAKER_FRONT_RIGHT;
+    else speakers = SL_SPEAKER_FRONT_CENTER;
+    SLDataLocator_AndroidSimpleBufferQueue loc_bq = {SL_DATALOCATOR_ANDROIDSIMPLEBUFFERQUEUE, 2};
+    SLDataFormat_PCM format_pcm = {SL_DATAFORMAT_PCM, channels, sr,
+				   SL_PCMSAMPLEFORMAT_FIXED_16, SL_PCMSAMPLEFORMAT_FIXED_16,
+				   speakers, SL_BYTEORDER_LITTLEENDIAN};
+    SLDataSink audioSnk = {&loc_bq, &format_pcm};
+
+    // create audio recorder
+    // (requires the RECORD_AUDIO permission)
+    const SLInterfaceID id[1] = {SL_IID_ANDROIDSIMPLEBUFFERQUEUE};
+    const SLboolean req[1] = {SL_BOOLEAN_TRUE};
+    result = (*p->engineEngine)->CreateAudioRecorder(p->engineEngine, &(p->recorderObject), &audioSrc,
+						     &audioSnk, 1, id, req);
+    if (SL_RESULT_SUCCESS != result) goto end_recopen;
+
+    // realize the audio recorder
+    result = (*p->recorderObject)->Realize(p->recorderObject, SL_BOOLEAN_FALSE);
+    if (SL_RESULT_SUCCESS != result) goto end_recopen;
+
+    // get the record interface
+    result = (*p->recorderObject)->GetInterface(p->recorderObject, SL_IID_RECORD, &(p->recorderRecord));
+    if (SL_RESULT_SUCCESS != result) goto end_recopen;
+
+    // get the buffer queue interface
+    result = (*p->recorderObject)->GetInterface(p->recorderObject, SL_IID_ANDROIDSIMPLEBUFFERQUEUE,
+						&(p->recorderBufferQueue));
+    if (SL_RESULT_SUCCESS != result) goto end_recopen;
+
+    // register callback on the buffer queue
+    result = (*p->recorderBufferQueue)->RegisterCallback(p->recorderBufferQueue, bqRecorderCallback,
+							 p);
+    if (SL_RESULT_SUCCESS != result) goto end_recopen;
+    result = (*p->recorderRecord)->SetRecordState(p->recorderRecord, SL_RECORDSTATE_RECORDING);
+
+  end_recopen:
+    return result;
   }
+  else return SL_RESULT_SUCCESS;
+}
+
+static void openSLDestoryEngine(OPENSL_STREAM *p) {
+
 }
