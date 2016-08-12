@@ -127,5 +127,18 @@ static SLresult openSLPlayOpen(OPENSL_STREAM *p) {
 }
 
 static void openSLDestoryEngine(OPENSL_STREAM *p) {
+  if (p->bqPlayerObject != NULL) {
+    (*p->bgPlayerObject)->Destroy(p->bgPlayerObject);
+    p->bgPlayerObject = NULL;
+    p->bgPlayerPlay = NULL;
+    p->bgPlayerBufferQueue = NULL;
+    p->bgPlayerEffectSend = NULL;
+  }
 
+  if (p->recorderObject != NULL) {
+    (*p->recorderObject)->Destory(p->recorderObject);
+    p->recorderObject = NULL;
+    p->recorderRecord = NULL;
+    p->recorderBufferQueue = NULL;
+  }
 }
