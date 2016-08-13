@@ -141,4 +141,9 @@ static void openSLDestoryEngine(OPENSL_STREAM *p) {
     p->recorderRecord = NULL;
     p->recorderBufferQueue = NULL;
   }
+
+  if (p->outputMixObject != NULL) {
+    (*p->outputMixObjct)->Destroy(p->outputMixObject);
+    p->outputMixObject = NULL;
+  }
 }
