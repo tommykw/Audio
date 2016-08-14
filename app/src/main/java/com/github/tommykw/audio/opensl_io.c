@@ -126,7 +126,7 @@ static SLresult openSLPlayOpen(OPENSL_STREAM *p) {
   else return SL_RESULT_SUCCESS;
 }
 
-static void openSLDestoryEngine(OPENSL_STREAM *p) {
+static void openSLDestroyEngine(OPENSL_STREAM *p) {
   if (p->bqPlayerObject != NULL) {
     (*p->bgPlayerObject)->Destroy(p->bgPlayerObject);
     p->bgPlayerObject = NULL;
@@ -146,4 +146,19 @@ static void openSLDestoryEngine(OPENSL_STREAM *p) {
     (*p->outputMixObjct)->Destroy(p->outputMixObject);
     p->outputMixObject = NULL;
   }
+
+  if (p->engineObject != NULL) {
+    (*p->engineObject)->Destroy(p->engineObject);
+    p->engineObject = NULL;
+    p->engineEngine = NULL;
+  }
+}
+
+OPENSL_STREAM *android_OpenAudioDevice(int sr,
+                                       int inchannels,
+                                       int outchannels,
+                                       int bufferframes) {
+    OPENSL_STREAM *p;
+    p = (OPENSL_STREAM *) calloc(sizeof(OPENSL_STREAM), 1);
+
 }
