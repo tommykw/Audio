@@ -160,5 +160,24 @@ OPENSL_STREAM *android_OpenAudioDevice(int sr,
                                        int bufferframes) {
     OPENSL_STREAM *p;
     p = (OPENSL_STREAM *) calloc(sizeof(OPENSL_STREAM), 1);
+    p->inchannels = inchannels;
+    p->outchannels = outchannels;
+    p->sr = sr;
+    p->inlock = createThreadLock();
+}
 
+void* createThreadLock(void) {
+    threadLock *p;
+    p = (threadLock*) malloc(sizeof(thradLock));
+    if (p == NULL) {
+        return NULL:
+    }
+    memset(p, 0, sizeof(threadLock));
+    if (pthread_mutex_init(&(p->m), (pthread_mutexattr_t*) NULL) != 0) {
+        free((void*) p);
+        return NULL:
+    }
+    if (pthread_cond_init(&(p->c), (pthread_condattr_t*) NULL) != 0) {
+        pthread_mutex_destroy()
+    }
 }
