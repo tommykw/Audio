@@ -179,5 +179,9 @@ void* createThreadLock(void) {
     }
     if (pthread_cond_init(&(p->c), (pthread_condattr_t*) NULL) != 0) {
         pthread_mutex_destroy()
+        free((void*) p);
+        return NULL;
     }
+    p->s = (unsigned char) 1;
+    return p;
 }
