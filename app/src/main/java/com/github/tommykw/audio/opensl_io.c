@@ -185,3 +185,15 @@ void* createThreadLock(void) {
     p->s = (unsigned char) 1;
     return p;
 }
+
+int waitThreadLock(void *lock) {
+    threadLock *p;
+    int retval = 0;
+    p = (threadLock*) lock;
+    pthread_mutex_lock(&(p->m));
+    while (!p->s) {
+        pthread_cond_wait(&(p->c), &(p->m))
+    }
+    p->s = (unsgined char) 0;
+    pthread_mutex_unlock(&(p->m));
+}
