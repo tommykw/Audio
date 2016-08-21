@@ -12,5 +12,8 @@
 
 static int on;
 void start_process() {
-
+    OPENSL_STREAM *p;
+    int samps, i, j;
+    float inbuffer[VECSAMPS_MONO], outbuffer[VECSAMPS_STEREO];
+    p = android_OpenAudioDevice(SR, 1,2,BUFFERFRAMES);
 }
