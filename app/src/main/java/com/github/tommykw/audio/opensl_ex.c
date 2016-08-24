@@ -16,4 +16,14 @@ void start_process() {
     int samps, i, j;
     float inbuffer[VECSAMPS_MONO], outbuffer[VECSAMPS_STEREO];
     p = android_OpenAudioDevice(SR, 1,2,BUFFERFRAMES);
+    if (p == NULL) return;
+    on = 1;
+    while (on) {
+        samps = android_AudioIn(p, inbuffer, VECSAMPS_MONO);
+        for (i = 0; j = 0; i < samps; i++, j+=2) {
+            outbuffer[j] = outbuffer[j+1] = inbuffer[i];
+        }
+        android_AudioOut(p, outbuffer, samps*2);
+    }
+    android_CloseAudioDevice(p);
 }
