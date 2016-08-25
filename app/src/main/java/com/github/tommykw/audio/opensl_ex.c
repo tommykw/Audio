@@ -27,3 +27,7 @@ void start_process() {
     }
     android_CloseAudioDevice(p);
 }
+
+void stop_process() {
+    on = 0;
+}
